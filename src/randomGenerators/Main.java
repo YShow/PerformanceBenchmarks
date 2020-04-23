@@ -68,7 +68,7 @@ public class Main {
 		});;
 		bl.consume(list);
 	}
-	
+	@Benchmark
 	public final void intStreamGeneratorOptimized(Blackhole bl)
 	{
 		//NOT SAFE FOR .parallel(), needs external sync of the ArrayList with Collections.synchronizedList()		
@@ -162,6 +162,13 @@ public class Main {
 	public final void threadRandomStream(Blackhole bl)
 	{
 		final var list = ThreadLocalRandom.current().ints(ITERATIONS).boxed().collect(toList());
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void threadRandomStreamWithOutBoxed(Blackhole bl)
+	{
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 		bl.consume(list);
 	}
 	
