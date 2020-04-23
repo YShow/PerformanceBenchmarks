@@ -2,6 +2,7 @@ package forLoops;
 
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -78,7 +79,7 @@ public class Main {
 	}
 
 	private final List<Integer> createData() {		
-		final var data = ThreadLocalRandom.current().ints(N).boxed().collect(toList());		
+		final List<Integer> data = ThreadLocalRandom.current().ints(N).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);		
 
 		return data;
 	}
