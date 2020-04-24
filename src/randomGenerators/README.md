@@ -1,16 +1,22 @@
 <pre>
-Benchmark                                          (ITERATIONS)  Mode  Cnt    Score    Error  Units
-randomGenerators.Main.forLoop                          10000000  avgt    5  206,575 ± 18,986  ms/op
-randomGenerators.Main.forLoopOptimized                 10000000  avgt    5  125,275 ± 11,057  ms/op
-randomGenerators.Main.intStreamGenerate                10000000  avgt    5  252,854 ± 33,710  ms/op
-randomGenerators.Main.intStreamGenerateOptimized       10000000  avgt    5  148,934 ± 24,424  ms/op
-randomGenerators.Main.intStreamGenerator               10000000  avgt    5  231,369 ± 12,415  ms/op
-randomGenerators.Main.intStreamIterate                 10000000  avgt    5  236,174 ± 37,980  ms/op
-randomGenerators.Main.intStreamIterateOptimized        10000000  avgt    5  141,313 ±  6,834  ms/op
-randomGenerators.Main.streamGenerator                  10000000  avgt    5  223,979 ± 28,273  ms/op
-randomGenerators.Main.streamGeneratorOptimized         10000000  avgt    5  137,397 ± 19,185  ms/op
-randomGenerators.Main.streamIterate                    10000000  avgt    5  315,260 ± 25,766  ms/op
-randomGenerators.Main.streamIterateOptimized           10000000  avgt    5  207,969 ± 43,113  ms/op
-randomGenerators.Main.threadRandomStream               10000000  avgt    5  225,896 ± 25,483  ms/op
-randomGenerators.Main.threadRandomStreamOptimized      10000000  avgt    5  142,852 ± 28,743  ms/op
+Benchmark                                                      (ITERATIONS)  Mode  Cnt     Score      Error  Units
+randomGenerators.Main.forLoop                                     100000000  avgt    3  1977,555 ± 1678,028  ms/op
+randomGenerators.Main.forLoopOptimized                            100000000  avgt    3  1258,845 ±  277,611  ms/op
+randomGenerators.Main.intStreamGenerate                           100000000  avgt    3  2170,697 ± 1578,987  ms/op
+randomGenerators.Main.intStreamGenerateOptimized                  100000000  avgt    3  1601,027 ±  691,251  ms/op
+randomGenerators.Main.intStreamGenerateWithoutBoxed               100000000  avgt    3  2090,076 ± 1548,535  ms/op
+randomGenerators.Main.intStreamGenerateWithoutBoxedOptimized      100000000  avgt    3  1386,097 ±  341,976  ms/op
+randomGenerators.Main.intStreamIterate                            100000000  avgt    3  2180,587 ± 2720,563  ms/op
+randomGenerators.Main.intStreamIterateOptimized                   100000000  avgt    3  1400,645 ±  744,143  ms/op
+randomGenerators.Main.intStreamRangeGenerator                     100000000  avgt    3  1938,959 ±  271,664  ms/op
+randomGenerators.Main.intStreamRangeGeneratorOptimized            100000000  avgt    3  1336,496 ±  999,413  ms/op
+randomGenerators.Main.streamGenerator                             100000000  avgt    3  2132,030 ± 3209,000  ms/op
+randomGenerators.Main.streamGeneratorOptimized                    100000000  avgt    3  1467,945 ±  342,439  ms/op
+randomGenerators.Main.streamIterate                               100000000  avgt    3  2661,789 ± 1488,098  ms/op
+randomGenerators.Main.streamIterateOptimized                      100000000  avgt    3  2157,078 ± 1300,832  ms/op
+randomGenerators.Main.threadRandomStream                          100000000  avgt    3  2241,036 ±  996,540  ms/op
+randomGenerators.Main.threadRandomStreamOptimized                 100000000  avgt    3  1530,870 ± 1017,882  ms/op
+randomGenerators.Main.threadRandomStreamWithoutBoxed              100000000  avgt    3  1945,084 ± 1887,145  ms/op
+randomGenerators.Main.threadRandomStreamWithoutBoxedOptimized     100000000  avgt    3  1304,174 ±  775,246  ms/op
+
 </pre>
