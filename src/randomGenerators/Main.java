@@ -1,9 +1,12 @@
 package randomGenerators;
 
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
@@ -56,9 +59,23 @@ public class Main {
 	}
 	
 	@Benchmark
+	public final void streamGeneratorToUnmodifiableList(Blackhole bl)
+	{
+		final var list = Stream.generate(this::randomNumber).limit(ITERATIONS).collect(toUnmodifiableList());
+		bl.consume(list);
+	}
+	
+	@Benchmark
 	public final void streamGeneratorOptimized(Blackhole bl)
 	{
 		final var list = Stream.generate(this::randomNumber).limit(ITERATIONS).collect(toCollection(() -> new ArrayList<Integer>(ITERATIONS)));
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void streamGeneratorOptimizedUnmodifiableList(Blackhole bl)
+	{
+		final var list = Stream.generate(this::randomNumber).limit(ITERATIONS).collect(collectingAndThen(toCollection(() -> new ArrayList<Integer>(ITERATIONS)), Collections::unmodifiableList));
 		bl.consume(list);
 	}
 	
@@ -143,6 +160,13 @@ public class Main {
 	}
 	
 	@Benchmark
+	public final void intStreamGenerateToUnmodifiableList(Blackhole bl)
+	{
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).boxed().collect(toUnmodifiableList());
+		bl.consume(list);
+	}
+	
+	@Benchmark
 	public final void intStreamGenerateOptimized(Blackhole bl)
 	{
 		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).boxed().collect(toCollection(() -> new ArrayList<Integer>(ITERATIONS)));
@@ -150,9 +174,23 @@ public class Main {
 	}
 	
 	@Benchmark
+	public final void intStreamGenerateOptimizedToUnmodifiableList(Blackhole bl)
+	{
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).boxed().collect(collectingAndThen(toCollection(() -> new ArrayList<Integer>(ITERATIONS)), Collections::unmodifiableList));
+		bl.consume(list);
+	}
+	
+	@Benchmark
 	public final void intStreamGenerateWithoutBoxed(Blackhole bl)
 	{
-		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).collect(ArrayList<Integer>::new, ArrayList::add, ArrayList::addAll);
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void intStreamGenerateWithoutBoxedToUnmodifiableList(Blackhole bl)
+	{
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).collect(ArrayList<Integer>::new, ArrayList::add, (t, u) -> Collections.unmodifiableList(u));
 		bl.consume(list);
 	}
 	
@@ -164,9 +202,23 @@ public class Main {
 	}
 	
 	@Benchmark
+	public final void intStreamGenerateWithoutBoxedOptimizedToUnmodifiableList(Blackhole bl)
+	{
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).collect(() -> new ArrayList<Integer>(ITERATIONS), ArrayList::add, (t, u) -> Collections.unmodifiableList(u));
+		bl.consume(list);
+	}
+	
+	@Benchmark
 	public final void threadRandomStream(Blackhole bl)
 	{
 		final var list = ThreadLocalRandom.current().ints(ITERATIONS).boxed().collect(toList());
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void threadRandomStreamToUnmodifiableList(Blackhole bl)
+	{
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).boxed().collect(toUnmodifiableList());
 		bl.consume(list);
 	}
 	
@@ -178,9 +230,23 @@ public class Main {
 	}
 	
 	@Benchmark
+	public final void threadRandomStreamOptimizedToUnmodifiableList(Blackhole bl)
+	{
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).boxed().collect(collectingAndThen(toCollection(() -> new ArrayList<Integer>(ITERATIONS)), Collections::unmodifiableList));
+		bl.consume(list);
+	}
+	
+	@Benchmark
 	public final void threadRandomStreamWithoutBoxed(Blackhole bl)
 	{
-		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(ArrayList<Integer>::new, ArrayList::add, ArrayList::addAll);
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void threadRandomStreamWithoutBoxedToUnmodifiableList(Blackhole bl)
+	{
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(ArrayList<Integer>::new, ArrayList::add, (t, u) -> Collections.unmodifiableList(u));
 		bl.consume(list);
 	}
 	
@@ -188,6 +254,13 @@ public class Main {
 	public final void threadRandomStreamWithoutBoxedOptimized(Blackhole bl)
 	{
 		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(() -> new ArrayList<Integer>(ITERATIONS), ArrayList::add, ArrayList::addAll);
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void threadRandomStreamWithoutBoxedOptimizedToUnmodifiableList(Blackhole bl)
+	{
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(() -> new ArrayList<Integer>(ITERATIONS), ArrayList::add, (t, u) -> Collections.unmodifiableList(u));
 		bl.consume(list);
 	}
 	

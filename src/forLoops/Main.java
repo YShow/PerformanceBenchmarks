@@ -29,10 +29,10 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 3)
 @Measurement(iterations = 3)
 public class Main {
-	private static List<Integer> list;
+	private List<Integer> list;
 
 	@Param({ "100000000" })
-	private static int N;
+	private int N;
 
 	@Setup
 	public final void setup() {
@@ -56,11 +56,26 @@ public class Main {
 			bl.consume(integer);
 		}
 	}
+	
+	@Benchmark
+	public void foreachenchancedNonFinal(Blackhole bl) {
+		for (var integer : list) {
+			bl.consume(integer);
+		}
+	}
 
 	@Benchmark
 	public final void forloop(final Blackhole bl) {
 		for (int i = 0; i < list.size(); i++) {
 			final var s = list.get(i);
+			bl.consume(s);
+		}
+	}
+	
+	@Benchmark
+	public void forloopNonFinal(Blackhole bl) {
+		for (int i = 0; i < list.size(); i++) {
+			var s = list.get(i);
 			bl.consume(s);
 		}
 	}
@@ -72,9 +87,22 @@ public class Main {
 			bl.consume(integer);
 		}
 	}
+	
+	@Benchmark
+	public void iteratorNonFinal(Blackhole bl) {
+		for (var iterator = list.iterator(); iterator.hasNext();) {
+			var integer = iterator.next();
+			bl.consume(integer);
+		}
+	}
 
 	@Benchmark
 	public final void foreach(final Blackhole bl) {
+		list.forEach(bl::consume);
+	}
+	
+	@Benchmark
+	public void foreachNonFinal(Blackhole bl) {
 		list.forEach(bl::consume);
 	}
 	
@@ -84,6 +112,24 @@ public class Main {
 		list.stream().forEach(bl::consume);
 	}
 
+	@Benchmark
+	public void streamIterateNonfinal(Blackhole bl)
+	{
+		list.stream().forEach(bl::consume);
+	}
+	
+	@Benchmark
+	public final void streamParallelIterate(final Blackhole bl)
+	{
+		list.parallelStream().forEach(bl::consume);
+	}
+	
+	@Benchmark
+	public void streamParallelIterateNonFinal(Blackhole bl)
+	{
+		list.parallelStream().forEach(bl::consume);
+	}
+	
 	private final List<Integer> createData() {		
 		final List<Integer> data = ThreadLocalRandom.current().ints(N)
 				.collect(() -> new ArrayList<Integer>(N), ArrayList::add, ArrayList::addAll);		
