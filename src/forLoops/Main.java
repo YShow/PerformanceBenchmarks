@@ -1,7 +1,5 @@
 package forLoops;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,14 +25,14 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = { "-Xmx4G", "-XX:-UseBiasedLocking", "-XX:-AlwaysPreTouch" })
 public class Main {
-	private static List<Integer> a;
+	private static List<Integer> list;
 
 	@Param({ "100000000" })
 	private static int N;
 
 	@Setup
 	public final void setup() {
-		a = createData();
+		list = createData();
 	}
 
 	public static void main(final String[] args) {
@@ -50,22 +48,22 @@ public class Main {
 
 	@Benchmark
 	public final void foreachenchanced(final Blackhole bl) {
-		for (final var integer : a) {
+		for (final var integer : list) {
 			bl.consume(integer);
 		}
 	}
 
 	@Benchmark
 	public final void forloop(final Blackhole bl) {
-		for (int i = 0; i < a.size(); i++) {
-			final var s = a.get(i);
+		for (int i = 0; i < list.size(); i++) {
+			final var s = list.get(i);
 			bl.consume(s);
 		}
 	}
 
 	@Benchmark
 	public final void iterator(final Blackhole bl) {
-		for (final var iterator = a.iterator(); iterator.hasNext();) {
+		for (final var iterator = list.iterator(); iterator.hasNext();) {
 			final var integer = iterator.next();
 			bl.consume(integer);
 		}
@@ -73,13 +71,18 @@ public class Main {
 
 	@Benchmark
 	public final void foreach(final Blackhole bl) {
-		a.forEach(e -> {
-			bl.consume(e);
-		});
+		list.forEach(bl::consume);
+	}
+	
+	@Benchmark
+	public final void streamIterate(final Blackhole bl)
+	{
+		list.stream().forEach(bl::consume);
 	}
 
 	private final List<Integer> createData() {		
-		final List<Integer> data = ThreadLocalRandom.current().ints(N).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);		
+		final List<Integer> data = ThreadLocalRandom.current().ints(N)
+				.collect(() -> new ArrayList<Integer>(N), ArrayList::add, ArrayList::addAll);		
 
 		return data;
 	}

@@ -12,11 +12,13 @@ import java.util.stream.Stream;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
 import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -28,9 +30,11 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = { "-Xmx4G", "-XX:-UseBiasedLocking", "-XX:-AlwaysPreTouch" })
+@Warmup(iterations = 3)
+@Measurement(iterations = 3)
 public class Main {
 	
-	@Param({"10000000"})
+	@Param({"100000000"})
 	private int ITERATIONS;
 	
 	public static void main(final String[] args) {
@@ -54,28 +58,24 @@ public class Main {
 	@Benchmark
 	public final void streamGeneratorOptimized(Blackhole bl)
 	{
-		final var list = Stream.generate(this::randomNumber).limit(ITERATIONS).collect(toCollection(() -> {return new ArrayList<Integer>(ITERATIONS);}));
+		final var list = Stream.generate(this::randomNumber).limit(ITERATIONS).collect(toCollection(() -> new ArrayList<Integer>(ITERATIONS)));
 		bl.consume(list);
 	}
 	
 	@Benchmark
-	public final void intStreamGenerator(Blackhole bl)
+	public final void intStreamRangeGenerator(Blackhole bl)
 	{
 		//NOT SAFE FOR .parallel(), needs external sync of the ArrayList with Collections.synchronizedList()		
 		final var list = new ArrayList<Integer>();
-		IntStream.range(0, ITERATIONS).forEach(e -> {
-			list.add(randomNumber());
-		});;
+		IntStream.range(0, ITERATIONS).forEach(e -> list.add(randomNumber()));
 		bl.consume(list);
 	}
 	@Benchmark
-	public final void intStreamGeneratorOptimized(Blackhole bl)
+	public final void intStreamRangeGeneratorOptimized(Blackhole bl)
 	{
 		//NOT SAFE FOR .parallel(), needs external sync of the ArrayList with Collections.synchronizedList()		
 		final var list = new ArrayList<Integer>(ITERATIONS);
-		IntStream.range(0, ITERATIONS).forEach(e -> {
-			list.add(randomNumber());
-		});;
+		IntStream.range(0, ITERATIONS).forEach(e -> list.add(randomNumber()));
 		bl.consume(list);
 	}
 	
@@ -104,9 +104,7 @@ public class Main {
 	{
 		//NOT SAFE FOR .parallel(), needs external sync of the ArrayList with Collections.synchronizedList()	
 		final var list = new ArrayList<Integer>();
-		IntStream.iterate(0, i -> i + 1).limit(ITERATIONS).forEach(i ->	{
-			list.add(randomNumber());
-		});
+		IntStream.iterate(0, i -> i + 1).limit(ITERATIONS).forEach(i -> list.add(randomNumber()));
 		bl.consume(list);
 	}
 	
@@ -115,9 +113,7 @@ public class Main {
 	{
 		//NOT SAFE FOR .parallel(), needs external sync of the ArrayList with Collections.synchronizedList()	
 		final var list = new ArrayList<Integer>(ITERATIONS);
-		IntStream.iterate(0, i -> i + 1).limit(ITERATIONS).forEach(i ->	{
-			list.add(randomNumber());
-		});
+		IntStream.iterate(0, i -> i + 1).limit(ITERATIONS).forEach(i -> list.add(randomNumber()));
 		bl.consume(list);
 	}
 	
@@ -126,9 +122,7 @@ public class Main {
 	{
 		//NOT SAFE FOR .parallel(), needs external sync of the ArrayList with Collections.synchronizedList()	
 		final var list = new ArrayList<Integer>();
-		Stream.iterate(1, i -> i + 1).limit(ITERATIONS).forEach(i -> {
-			list.add(randomNumber());
-		});
+		Stream.iterate(1, i -> i + 1).limit(ITERATIONS).forEach(i -> list.add(randomNumber()));
 		bl.consume(list);		
 	}
 	
@@ -137,9 +131,7 @@ public class Main {
 	{
 		//NOT SAFE FOR .parallel(), needs external sync of the ArrayList with Collections.synchronizedList()	
 		final var list = new ArrayList<Integer>(ITERATIONS);
-		Stream.iterate(1, i -> i + 1).limit(ITERATIONS).forEach(i -> {
-			list.add(randomNumber());
-		});
+		Stream.iterate(1, i -> i + 1).limit(ITERATIONS).forEach(i -> list.add(randomNumber()));
 		bl.consume(list);		
 	}
 	
@@ -153,8 +145,21 @@ public class Main {
 	@Benchmark
 	public final void intStreamGenerateOptimized(Blackhole bl)
 	{
-		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).boxed().collect(toCollection(() -> {
-			return new ArrayList<Integer>(ITERATIONS);}));
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).boxed().collect(toCollection(() -> new ArrayList<Integer>(ITERATIONS)));
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void intStreamGenerateWithoutBoxed(Blackhole bl)
+	{
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void intStreamGenerateWithoutBoxedOptimized(Blackhole bl)
+	{
+		final var list = IntStream.generate(this::randomNumber).limit(ITERATIONS).collect(() -> new ArrayList<Integer>(ITERATIONS), ArrayList::add, ArrayList::addAll);
 		bl.consume(list);
 	}
 	
@@ -166,17 +171,23 @@ public class Main {
 	}
 	
 	@Benchmark
-	public final void threadRandomStreamWithOutBoxed(Blackhole bl)
+	public final void threadRandomStreamOptimized(Blackhole bl)
+	{
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).boxed().collect(toCollection(() -> new ArrayList<Integer>(ITERATIONS)));
+		bl.consume(list);
+	}
+	
+	@Benchmark
+	public final void threadRandomStreamWithoutBoxed(Blackhole bl)
 	{
 		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
 		bl.consume(list);
 	}
 	
 	@Benchmark
-	public final void threadRandomStreamOptimized(Blackhole bl)
+	public final void threadRandomStreamWithoutBoxedOptimized(Blackhole bl)
 	{
-		final var list = ThreadLocalRandom.current().ints(ITERATIONS).boxed().collect(toCollection(() -> { 
-			return new ArrayList<Integer>(ITERATIONS);}));
+		final var list = ThreadLocalRandom.current().ints(ITERATIONS).collect(() -> new ArrayList<Integer>(ITERATIONS), ArrayList::add, ArrayList::addAll);
 		bl.consume(list);
 	}
 	
