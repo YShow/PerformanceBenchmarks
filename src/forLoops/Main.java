@@ -1,6 +1,7 @@
 package forLoops;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -26,8 +27,8 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @State(Scope.Benchmark)
 @Fork(value = 1, jvmArgs = { "-Xmx4G", "-XX:-UseBiasedLocking", "-XX:-AlwaysPreTouch" })
-@Warmup(iterations = 3)
-@Measurement(iterations = 3)
+@Warmup(iterations = 3, time = 1000, timeUnit = TimeUnit.MILLISECONDS)
+@Measurement(iterations = 3, time = 1000, timeUnit = TimeUnit.MILLISECONDS)
 public class Main {
 	private List<Integer> list;
 
@@ -56,7 +57,7 @@ public class Main {
 			bl.consume(integer);
 		}
 	}
-	
+
 	@Benchmark
 	public void foreachenchancedNonFinal(Blackhole bl) {
 		for (var integer : list) {
@@ -71,7 +72,7 @@ public class Main {
 			bl.consume(s);
 		}
 	}
-	
+
 	@Benchmark
 	public void forloopNonFinal(Blackhole bl) {
 		for (int i = 0; i < list.size(); i++) {
@@ -87,7 +88,7 @@ public class Main {
 			bl.consume(integer);
 		}
 	}
-	
+
 	@Benchmark
 	public void iteratorNonFinal(Blackhole bl) {
 		for (var iterator = list.iterator(); iterator.hasNext();) {
@@ -100,42 +101,37 @@ public class Main {
 	public final void foreach(final Blackhole bl) {
 		list.forEach(bl::consume);
 	}
-	
+
 	@Benchmark
 	public void foreachNonFinal(Blackhole bl) {
 		list.forEach(bl::consume);
 	}
-	
+
 	@Benchmark
-	public final void streamIterate(final Blackhole bl)
-	{
+	public final void streamIterate(final Blackhole bl) {
 		list.stream().forEach(bl::consume);
 	}
 
 	@Benchmark
-	public void streamIterateNonfinal(Blackhole bl)
-	{
+	public void streamIterateNonfinal(Blackhole bl) {
 		list.stream().forEach(bl::consume);
 	}
-	
+
 	@Benchmark
-	public final void streamParallelIterate(final Blackhole bl)
-	{
+	public final void streamParallelIterate(final Blackhole bl) {
 		list.parallelStream().forEach(bl::consume);
 	}
-	
+
 	@Benchmark
-	public void streamParallelIterateNonFinal(Blackhole bl)
-	{
+	public void streamParallelIterateNonFinal(Blackhole bl) {
 		list.parallelStream().forEach(bl::consume);
 	}
-	
-	private final List<Integer> createData() {		
-		final List<Integer> data = ThreadLocalRandom.current().ints(N)
-				.collect(() -> new ArrayList<Integer>(N), ArrayList::add, ArrayList::addAll);		
+
+	private final List<Integer> createData() {
+		final List<Integer> data = Collections.unmodifiableList(
+				ThreadLocalRandom.current().ints(N).collect(() -> new ArrayList<Integer>(N), List::add, List::addAll));
 
 		return data;
 	}
-
 
 }
