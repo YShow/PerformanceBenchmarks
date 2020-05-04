@@ -23,7 +23,6 @@
 				<configuration>
 					<release>14</release>
 					<compilerArgs>-Xlint</compilerArgs>
-					<debug>false</debug>
 					<showWarnings>true</showWarnings>
 				</configuration>
 			</plugin>
