@@ -26,38 +26,38 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 @State(Scope.Benchmark)
-@Fork(value = 1, jvmArgs = { "-Xmx4G", "-XX:-UseBiasedLocking", "-XX:-AlwaysPreTouch", "-XX:+UseG1GC" })
-@Warmup(iterations = 5, time = 1000, timeUnit = TimeUnit.MILLISECONDS)
-@Measurement(iterations = 5, time = 1000, timeUnit = TimeUnit.MILLISECONDS)
+@Fork(value = 1, jvmArgs = { "-Xmx4G", "-XX:-UseBiasedLocking", "-XX:-AlwaysPreTouch", "-XX:+UseG1GC"})
+@Warmup(iterations = 10, time = 1000, timeUnit = TimeUnit.MILLISECONDS)
+@Measurement(iterations = 10, time = 1000, timeUnit = TimeUnit.MILLISECONDS)
 public class StringTests {
 	private final String from = "Alex";
 	private final String to = "Readers";
 	private final String subject = "Benchmarking with JMH";
 	private ArrayList<String> lists;
-	@Param({"16"})
+	@Param({ "16" })
 	private int size;
-	@Param({"10000000"})
+	@Param({ "10000000" })
 	private int sizeList;
+
 	@Setup
-	public void setup()
-	{
+	public void setup() {
 		lists = createData();
 	}
-	
+
 	private ArrayList<String> createData() {
-		final var lista = new ArrayList<String>(sizeList);		
+		final var lista = new ArrayList<String>(sizeList);
 		for (int i = 0; i < sizeList; i++) {
 			lista.add(createName());
 		}
 		return lista;
 	}
-	
+
 	private final String createName() {
 		final var b = new byte[56];
 		ThreadLocalRandom.current().nextBytes(b);
 		return java.util.Base64.getEncoder().encodeToString(b);
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(StringTests.class.getSimpleName());
 		final Options opt = new OptionsBuilder().include(StringTests.class.getSimpleName()).build();
@@ -67,7 +67,7 @@ public class StringTests {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	@Benchmark
 	public String testEmptyBuffer() {
 		StringBuffer buffer = new StringBuffer();
@@ -160,40 +160,33 @@ public class StringTests {
 	public String testEmailLiteral() {
 		return "From" + from + "To" + to + "Subject" + subject;
 	}
-	
+
 	@Benchmark
 	public boolean chatAtSimpleComma() {
 		return subject.charAt(0) == 'B';
 	}
-	
+
 	@Benchmark
 	public boolean startsWith() {
 		return subject.startsWith("B");
 	}
-	
+
 	@Benchmark
-	public boolean charAtSimpleCommaLoop(final Blackhole bl) {
-		boolean isgood = false;
+	public void charAtSimpleCommaLoop(final Blackhole bl) {
 		for (final String string : lists) {
-			if(string.charAt(0) == 'a')
-			{
+			if (string.charAt(0) == 'a') {
 				bl.consume(string);
-				isgood = true;
 			}
 		}
-		return isgood;
 	}
+
 	@Benchmark
-	public boolean startsWithLoop(final Blackhole bl) {
-		boolean isgood = false;
+	public void startsWithLoop(final Blackhole bl) {
 		for (final String string : lists) {
-			if(string.startsWith("a"))
-			{
+			if (string.startsWith("a")) {
 				bl.consume(string);
-				isgood = true;
 			}
 		}
-		return isgood;
 	}
-	
+
 }

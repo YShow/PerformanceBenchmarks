@@ -22,8 +22,13 @@
 				<version>3.8.0</version>
 				<configuration>
 					<release>14</release>
-					<compilerArgs>-Xlint</compilerArgs>
 					<showWarnings>true</showWarnings>
+					<debug>false</debug>
+					<debuglevel>-g:none</debuglevel>
+					<compilerArgs>
+					<compilerArg>--enable-preview</compilerArg>
+					<compilerArg>-Xlint</compilerArg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
