@@ -19,22 +19,16 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
+				<version>3.8.1</version>
 				<configuration>
 					<release>14</release>
-					<showWarnings>true</showWarnings>
-					<debug>false</debug>
-					<debuglevel>-g:none</debuglevel>
-					<compilerArgs>
-					<compilerArg>--enable-preview</compilerArg>
-					<compilerArg>-Xlint</compilerArg>
-					</compilerArgs>
+					<compilerArgument>--enable-preview</compilerArgument>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>3.2.3</version>
+				<version>3.2.4</version>
 				<executions>
 					<execution>
 						<phase>package</phase>

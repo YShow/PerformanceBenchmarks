@@ -41,7 +41,6 @@ public class Main {
 	}
 
 	public static void main(final String[] args) {
-		System.out.println(Main.class.getSimpleName());
 		final Options opt = new OptionsBuilder().include(Main.class.getSimpleName()).build();
 		try {
 			new Runner(opt).run();
