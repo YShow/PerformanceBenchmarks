@@ -40,6 +40,11 @@ public class ListCreation {
 	}
 	
 	@Benchmark
+	public final String[] array() {
+		return new String[] {"a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c"};
+	}
+	
+	@Benchmark
 	public final List<String> listOF()
 	{
 		return List.of( "a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c","a","b","c");
